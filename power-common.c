@@ -73,8 +73,6 @@ void power_hint(power_hint_t hint, void* data) {
         return;
     }
     switch (hint) {
-        case POWER_HINT_VSYNC:
-            break;
         case POWER_HINT_VR_MODE:
             ALOGI("VR mode power hint not handled in power_hint_override");
             break;
@@ -92,12 +90,16 @@ void power_hint(power_hint_t hint, void* data) {
                     handles[hint].handle = perf_hint_enable((AOSP_DELTA + hint), 0);
 
                 if (handles[hint].handle > 0) handles[hint].ref_count++;
-            } else if (handles[hint].handle > 0)
+            } else if (handles[hint].handle > 0) {
                 if (--handles[hint].ref_count == 0) {
                     release_request(handles[hint].handle);
                     handles[hint].handle = 0;
-                } else
+                } else {
                     ALOGE("Lock for hint: %X was not acquired, cannot be released", hint);
+                }
+            }
+            break;
+        default:
             break;
     }
 }

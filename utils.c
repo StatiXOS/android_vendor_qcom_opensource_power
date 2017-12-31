@@ -193,11 +193,13 @@ int is_interactive_governor(char* governor) {
     return 0;
 }
 
+#ifndef INTERACTION_BOOST
+void interaction(int UNUSED(duration), int UNUSED(num_args), int UNUSED(opt_list[])) {
+#else
 void interaction(int duration, int num_args, int opt_list[]) {
-#ifdef INTERACTION_BOOST
     static int lock_handle = 0;
 
-    if (duration < 0 || num_args < 1 || opt_list[0] == NULL) return;
+    if (duration < 0 || num_args < 1 || opt_list[0] == 0) return;
 
     if (qcopt_handle) {
         if (perf_lock_acq) {
@@ -209,7 +211,7 @@ void interaction(int duration, int num_args, int opt_list[]) {
 }
 
 int interaction_with_handle(int lock_handle, int duration, int num_args, int opt_list[]) {
-    if (duration < 0 || num_args < 1 || opt_list[0] == NULL) return 0;
+    if (duration < 0 || num_args < 1 || opt_list[0] == 0) return 0;
 
     if (qcopt_handle) {
         if (perf_lock_acq) {
