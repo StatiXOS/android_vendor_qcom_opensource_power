@@ -31,8 +31,6 @@
 
 #include "Power.h"
 
-#include <android-base/logging.h>
-
 #include <aidl/android/hardware/power/BnPower.h>
 
 #include <android-base/logging.h>
