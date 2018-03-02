@@ -29,8 +29,7 @@
 
 #define LOG_TAG "android.hardware.power@1.2-service-qti"
 
-#include <android/log.h>
-#include <utils/Log.h>
+#include <log/log.h>
 #include "Power.h"
 #include "power-common.h"
 
