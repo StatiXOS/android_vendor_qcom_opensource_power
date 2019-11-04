@@ -91,14 +91,22 @@ ifneq ($(TARGET_USES_NON_LEGACY_POWERHAL), true)
 LOCAL_MODULE := power.qcom
 LOCAL_MODULE_TAGS := optional
 LOCAL_CFLAGS += -Wno-unused-parameter -Wno-unused-variable
+ifneq ($(TARGET_OVERLAYS_POWERHAL), true)
 LOCAL_VENDOR_MODULE := true
+else
+LOCAL_VENDOR_OVERLAY_MODULE := true
+endif
 include $(BUILD_SHARED_LIBRARY)
 else
 LOCAL_MODULE := android.hardware.power@1.2-service-qti
 LOCAL_INIT_RC := android.hardware.power@1.2-service-qti.rc
 LOCAL_MODULE_TAGS := optional
 LOCAL_CFLAGS += -Wno-unused-parameter -Wno-unused-variable
+ifneq ($(TARGET_OVERLAYS_POWERHAL), true)
 LOCAL_VENDOR_MODULE := true
+else
+LOCAL_VENDOR_OVERLAY_MODULE := true
+endif
 include $(BUILD_EXECUTABLE)
 endif
 
