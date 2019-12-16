@@ -102,5 +102,4 @@ LOCAL_VENDOR_MODULE := true
 include $(BUILD_EXECUTABLE)
 endif
 
-
 endif
