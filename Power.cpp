@@ -29,9 +29,9 @@
 
 #define LOG_TAG "android.hardware.power@1.2-service-qti"
 
-#include <log/log.h>
 #include "Power.h"
 #include "power-common.h"
+#include <log/log.h>
 
 namespace android {
 namespace hardware {
@@ -39,63 +39,63 @@ namespace power {
 namespace V1_2 {
 namespace implementation {
 
+using ::android::hardware::hidl_vec;
+using ::android::hardware::Return;
+using ::android::hardware::Void;
 using ::android::hardware::power::V1_0::Feature;
 using ::android::hardware::power::V1_0::PowerHint;
 using ::android::hardware::power::V1_0::PowerStatePlatformSleepState;
 using ::android::hardware::power::V1_0::Status;
 using ::android::hardware::power::V1_1::PowerStateSubsystem;
-using ::android::hardware::hidl_vec;
-using ::android::hardware::Return;
-using ::android::hardware::Void;
 
-Power::Power() {
-    power_init();
-}
+Power::Power() { power_init(); }
 
 Return<void> Power::setInteractive(bool interactive) {
-    set_interactive(interactive ? 1:0);
-    return Void();
+  set_interactive(interactive ? 1 : 0);
+  return Void();
 }
 
 Return<void> Power::powerHint(PowerHint_1_0 hint, int32_t data) {
 
-    power_hint(static_cast<power_hint_t>(hint), data ? (&data) : NULL);
-    return Void();
+  power_hint(static_cast<power_hint_t>(hint), data ? (&data) : NULL);
+  return Void();
 }
 
-Return<void> Power::setFeature(Feature feature, bool activate)  {
-    return Void();
+Return<void> Power::setFeature(Feature feature, bool activate) {
+  return Void();
 }
 
-Return<void> Power::getPlatformLowPowerStats(getPlatformLowPowerStats_cb _hidl_cb) {
+Return<void>
+Power::getPlatformLowPowerStats(getPlatformLowPowerStats_cb _hidl_cb) {
 
-    hidl_vec<PowerStatePlatformSleepState> states;
-    states.resize(0);
+  hidl_vec<PowerStatePlatformSleepState> states;
+  states.resize(0);
 
-    _hidl_cb(states, Status::SUCCESS);
-    return Void();
+  _hidl_cb(states, Status::SUCCESS);
+  return Void();
 }
 
-Return<void> Power::getSubsystemLowPowerStats(getSubsystemLowPowerStats_cb _hidl_cb) {
+Return<void>
+Power::getSubsystemLowPowerStats(getSubsystemLowPowerStats_cb _hidl_cb) {
 
-    hidl_vec<PowerStateSubsystem> subsystems;
+  hidl_vec<PowerStateSubsystem> subsystems;
 
-    _hidl_cb(subsystems, Status::SUCCESS);
-    return Void();
+  _hidl_cb(subsystems, Status::SUCCESS);
+  return Void();
 }
 
 Return<void> Power::powerHintAsync(PowerHint_1_0 hint, int32_t data) {
 
-    return powerHint(hint, data);
+  return powerHint(hint, data);
 }
 
 Return<void> Power::powerHintAsync_1_2(PowerHint_1_2 hint, int32_t data) {
 
-    return powerHint(static_cast<PowerHint_1_0> (hint), data);
+  return powerHint(static_cast<PowerHint_1_0>(hint), data);
 }
 
-}  // namespace implementation
-}  // namespace V1_2
-}  // namespace power
-}  // namespace hardware
-}  // namespace android
+} // namespace implementation
+} // namespace V1_2
+} // namespace power
+} // namespace hardware
+} // namespace android
