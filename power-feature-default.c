@@ -16,14 +16,14 @@
  */
 
 #include <dlfcn.h>
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <hardware/power.h>
+#include <linux/input.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#include <linux/input.h>
-#include <hardware/power.h>
 #include "power-common.h"
 #include "power-feature.h"
 #include "utils.h"
@@ -31,8 +31,7 @@
 #ifndef LEGACY_QCOM_POWERHAL
 void set_device_specific_feature(feature_t feature, int state)
 #else
-void set_device_specific_feature(struct power_module *module __unused,
-    feature_t feature, int state)
+void set_device_specific_feature(struct power_module* module __unused, feature_t feature, int state)
 #endif
 {
     char tmp_str[NODE_MAX];
@@ -54,14 +53,14 @@ void set_device_specific_feature(struct power_module *module __unused,
 
 #ifdef TAP_TO_WAKE_EVENT_NODE
     if (feature == POWER_FEATURE_DOUBLE_TAP_TO_WAKE) {
-            int fd = open(TAP_TO_WAKE_EVENT_NODE, O_RDWR);
-            struct input_event ev;
-            ev.type = EV_SYN;
-            ev.code = SYN_CONFIG;
-            ev.value = state ? INPUT_EVENT_WAKUP_MODE_ON : INPUT_EVENT_WAKUP_MODE_OFF;
-            write(fd, &ev, sizeof(ev));
-            close(fd);
-            return;
+        int fd = open(TAP_TO_WAKE_EVENT_NODE, O_RDWR);
+        struct input_event ev;
+        ev.type = EV_SYN;
+        ev.code = SYN_CONFIG;
+        ev.value = state ? INPUT_EVENT_WAKUP_MODE_ON : INPUT_EVENT_WAKUP_MODE_OFF;
+        write(fd, &ev, sizeof(ev));
+        close(fd);
+        return;
     }
 #endif
 

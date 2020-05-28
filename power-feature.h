@@ -22,7 +22,7 @@
 #ifndef LEGACY_QCOM_POWERHAL
 void set_device_specific_feature(feature_t feature, int state);
 #else
-void set_device_specific_feature(struct power_module *module, feature_t feature, int state);
+void set_device_specific_feature(struct power_module* module, feature_t feature, int state);
 #endif
 
 #endif
