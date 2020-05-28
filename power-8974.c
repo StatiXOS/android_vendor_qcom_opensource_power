@@ -28,24 +28,24 @@
  */
 #define LOG_NIDEBUG 0
 
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <dlfcn.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define LOG_TAG "QTI PowerHAL"
-#include <log/log.h>
 #include <hardware/hardware.h>
 #include <hardware/power.h>
+#include <log/log.h>
 
-#include "utils.h"
-#include "metadata-defs.h"
 #include "hint-data.h"
+#include "metadata-defs.h"
 #include "performance.h"
 #include "power-common.h"
+#include "utils.h"
 
 static int display_hint_sent;
 static int display_hint2_sent;
@@ -57,8 +57,7 @@ static int first_display_off_hint;
  * else:
  *     return false
  */
-static bool is_target_8974pro(void)
-{
+static bool is_target_8974pro(void) {
     int fd;
     bool is_target_8974pro = false;
     char buf[10] = {0};
@@ -79,8 +78,7 @@ static bool is_target_8974pro(void)
     return is_target_8974pro;
 }
 
-int set_interactive_override(struct power_module *module, int on)
-{
+int set_interactive_override(struct power_module* module, int on) {
     char governor[80];
 
     if (get_scaling_governor(governor, sizeof(governor)) == -1) {
@@ -108,12 +106,13 @@ int set_interactive_override(struct power_module *module, int on)
         }
 
         if ((strncmp(governor, ONDEMAND_GOVERNOR, strlen(ONDEMAND_GOVERNOR)) == 0) &&
-                (strlen(governor) == strlen(ONDEMAND_GOVERNOR))) {
-            int resource_values[] = {MS_500, SYNC_FREQ_600, OPTIMAL_FREQ_600, THREAD_MIGRATION_SYNC_OFF};
+            (strlen(governor) == strlen(ONDEMAND_GOVERNOR))) {
+            int resource_values[] = {MS_500, SYNC_FREQ_600, OPTIMAL_FREQ_600,
+                                     THREAD_MIGRATION_SYNC_OFF};
 
             if (!display_hint_sent) {
-                perform_hint_action(DISPLAY_STATE_HINT_ID,
-                        resource_values, sizeof(resource_values)/sizeof(resource_values[0]));
+                perform_hint_action(DISPLAY_STATE_HINT_ID, resource_values,
+                                    sizeof(resource_values) / sizeof(resource_values[0]));
                 display_hint_sent = 1;
             }
 
@@ -123,13 +122,13 @@ int set_interactive_override(struct power_module *module, int on)
         /* Display on */
         if (is_target_8974pro() && display_hint2_sent) {
             int resource_values2[] = {CPUS_ONLINE_MIN_2};
-            perform_hint_action(DISPLAY_STATE_HINT_ID_2,
-                    resource_values2, sizeof(resource_values2)/sizeof(resource_values2[0]));
+            perform_hint_action(DISPLAY_STATE_HINT_ID_2, resource_values2,
+                                sizeof(resource_values2) / sizeof(resource_values2[0]));
             display_hint2_sent = 0;
         }
 
         if ((strncmp(governor, ONDEMAND_GOVERNOR, strlen(ONDEMAND_GOVERNOR)) == 0) &&
-                (strlen(governor) == strlen(ONDEMAND_GOVERNOR))) {
+            (strlen(governor) == strlen(ONDEMAND_GOVERNOR))) {
             undo_hint_action(DISPLAY_STATE_HINT_ID);
             display_hint_sent = 0;
 
