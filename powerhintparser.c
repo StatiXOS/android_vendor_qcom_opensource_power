@@ -26,154 +26,151 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <log/log.h>
-#include <fcntl.h>
-#include <string.h>
+#include "powerhintparser.h"
 #include <cutils/properties.h>
+#include <fcntl.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <log/log.h>
+#include <string.h>
 #include <unistd.h>
-#include "powerhintparser.h"
 #define LOG_TAG "QTI PowerHAL"
 
 int parsePowerhintXML() {
 
-    xmlDocPtr doc;
-    xmlNodePtr currNode;
-    const char *opcode_str, *value_str, *type_str;
-    int opcode = 0, value = 0, type = 0;
-    int numParams = 0;
-    static int hintCount;
+  xmlDocPtr doc;
+  xmlNodePtr currNode;
+  const char *opcode_str, *value_str, *type_str;
+  int opcode = 0, value = 0, type = 0;
+  int numParams = 0;
+  static int hintCount;
 
-    if(access(POWERHINT_XML, F_OK) < 0) {
-        return -1;
-    }
+  if (access(POWERHINT_XML, F_OK) < 0) {
+    return -1;
+  }
 
-    doc = xmlReadFile(POWERHINT_XML, "UTF-8", XML_PARSE_RECOVER);
-    if(!doc) {
-        ALOGE("Document not parsed successfully");
-        return -1;
-    }
+  doc = xmlReadFile(POWERHINT_XML, "UTF-8", XML_PARSE_RECOVER);
+  if (!doc) {
+    ALOGE("Document not parsed successfully");
+    return -1;
+  }
 
-    currNode = xmlDocGetRootElement(doc);
-    if(!currNode) {
-        ALOGE("Empty document");
-        xmlFreeDoc(doc);
-        xmlCleanupParser();
-        return -1;
-    }
-
-    // Confirm the root-element of the tree
-    if(xmlStrcmp(currNode->name, BAD_CAST "Powerhint")) {
-        ALOGE("document of the wrong type, root node != root");
-        xmlFreeDoc(doc);
-        xmlCleanupParser();
-        return -1;
-    }
-
-    currNode = currNode->xmlChildrenNode;
-
-    for(; currNode != NULL; currNode=currNode->next) {
-
-        if(currNode->type != XML_ELEMENT_NODE)
-            continue;
-
-        xmlNodePtr node = currNode;
-
-        if(hintCount == MAX_HINT) {
-            ALOGE("Number of hints exceeded the max count of %d\n",MAX_HINT);
-            break;
-        }
-
-        if(!xmlStrcmp(node->name, BAD_CAST "Hint")) {
-            if(xmlHasProp(node, BAD_CAST "type")) {
-               type_str = (const char*)xmlGetProp(node, BAD_CAST "type");
-               if (type_str == NULL)
-               {
-                   ALOGE("xmlGetProp failed on type");
-                   xmlFreeDoc(doc);
-                   xmlCleanupParser();
-                   return -1;
-               }
-               type = strtol(type_str, NULL, 16);
-            }
-
-            node = node->children;
-            while(node != NULL) {
-                if(!xmlStrcmp(node->name, BAD_CAST "Resource")) {
-
-                    if(xmlHasProp(node, BAD_CAST "opcode")) {
-                        opcode_str  = (const char*)xmlGetProp(node, BAD_CAST "opcode");
-                        if (opcode_str == NULL)
-                        {
-                            ALOGE("xmlGetProp failed on opcode");
-                            xmlFreeDoc(doc);
-                            xmlCleanupParser();
-                            return -1;
-                        }
-                        opcode = strtol(opcode_str, NULL, 16);
-                    }
-                    if(xmlHasProp(node, BAD_CAST "value")) {
-                        value_str = (const char*)xmlGetProp(node, BAD_CAST "value");
-                        if (value_str == NULL)
-                        {
-                            ALOGE("xmlGetProp failed on value");
-                            xmlFreeDoc(doc);
-                            xmlCleanupParser();
-                            return -1;
-                        }
-                        value = strtol(value_str, NULL, 16);
-                    }
-                    if(opcode > 0) {
-                        if(numParams < (MAX_PARAM-1)) {
-                            powerhint[hintCount].paramList[numParams++] = opcode;
-                            powerhint[hintCount].paramList[numParams++] = value;
-                        } else {
-                            ALOGE("Maximum parameters exceeded for Hint ID %x\n",type);
-                            opcode = value = 0;
-                            break;
-                        }
-                    }
-
-                    opcode = value = 0;
-                }
-                node = node->next;
-            }
-            powerhint[hintCount].type = type;
-            powerhint[hintCount].numParams = numParams;
-            numParams = 0;
-        }
-        hintCount++;
-    }
-
+  currNode = xmlDocGetRootElement(doc);
+  if (!currNode) {
+    ALOGE("Empty document");
     xmlFreeDoc(doc);
     xmlCleanupParser();
-    return 0;
+    return -1;
+  }
+
+  // Confirm the root-element of the tree
+  if (xmlStrcmp(currNode->name, BAD_CAST "Powerhint")) {
+    ALOGE("document of the wrong type, root node != root");
+    xmlFreeDoc(doc);
+    xmlCleanupParser();
+    return -1;
+  }
+
+  currNode = currNode->xmlChildrenNode;
+
+  for (; currNode != NULL; currNode = currNode->next) {
+
+    if (currNode->type != XML_ELEMENT_NODE)
+      continue;
+
+    xmlNodePtr node = currNode;
+
+    if (hintCount == MAX_HINT) {
+      ALOGE("Number of hints exceeded the max count of %d\n", MAX_HINT);
+      break;
+    }
+
+    if (!xmlStrcmp(node->name, BAD_CAST "Hint")) {
+      if (xmlHasProp(node, BAD_CAST "type")) {
+        type_str = (const char *)xmlGetProp(node, BAD_CAST "type");
+        if (type_str == NULL) {
+          ALOGE("xmlGetProp failed on type");
+          xmlFreeDoc(doc);
+          xmlCleanupParser();
+          return -1;
+        }
+        type = strtol(type_str, NULL, 16);
+      }
+
+      node = node->children;
+      while (node != NULL) {
+        if (!xmlStrcmp(node->name, BAD_CAST "Resource")) {
+
+          if (xmlHasProp(node, BAD_CAST "opcode")) {
+            opcode_str = (const char *)xmlGetProp(node, BAD_CAST "opcode");
+            if (opcode_str == NULL) {
+              ALOGE("xmlGetProp failed on opcode");
+              xmlFreeDoc(doc);
+              xmlCleanupParser();
+              return -1;
+            }
+            opcode = strtol(opcode_str, NULL, 16);
+          }
+          if (xmlHasProp(node, BAD_CAST "value")) {
+            value_str = (const char *)xmlGetProp(node, BAD_CAST "value");
+            if (value_str == NULL) {
+              ALOGE("xmlGetProp failed on value");
+              xmlFreeDoc(doc);
+              xmlCleanupParser();
+              return -1;
+            }
+            value = strtol(value_str, NULL, 16);
+          }
+          if (opcode > 0) {
+            if (numParams < (MAX_PARAM - 1)) {
+              powerhint[hintCount].paramList[numParams++] = opcode;
+              powerhint[hintCount].paramList[numParams++] = value;
+            } else {
+              ALOGE("Maximum parameters exceeded for Hint ID %x\n", type);
+              opcode = value = 0;
+              break;
+            }
+          }
+
+          opcode = value = 0;
+        }
+        node = node->next;
+      }
+      powerhint[hintCount].type = type;
+      powerhint[hintCount].numParams = numParams;
+      numParams = 0;
+    }
+    hintCount++;
+  }
+
+  xmlFreeDoc(doc);
+  xmlCleanupParser();
+  return 0;
 }
 
-int* getPowerhint(int hint_id, int *params) {
+int *getPowerhint(int hint_id, int *params) {
 
-   int *result = NULL;
+  int *result = NULL;
 
-   if(!hint_id)
-       return result;
+  if (!hint_id)
+    return result;
 
-    ALOGI("Powerhal hint received=%x\n",hint_id);
+  ALOGI("Powerhal hint received=%x\n", hint_id);
 
-    if(!powerhint[0].numParams) {
-       parsePowerhintXML();
+  if (!powerhint[0].numParams) {
+    parsePowerhintXML();
+  }
+
+  for (int i = 0; i < MAX_HINT; i++) {
+    if (hint_id == powerhint[i].type) {
+      *params = powerhint[i].numParams;
+      result = powerhint[i].paramList;
+      break;
     }
+  }
 
-    for(int i = 0; i < MAX_HINT; i++) {
-       if(hint_id == powerhint[i].type) {
-          *params = powerhint[i].numParams;
-          result = powerhint[i].paramList;
-          break;
-       }
-    }
+  /*for (int j = 0; j < *params; j++)
+      ALOGI("Powerhal resource again%x = \n", result[j]);*/
 
-    /*for (int j = 0; j < *params; j++)
-        ALOGI("Powerhal resource again%x = \n", result[j]);*/
-
-       return result;
+  return result;
 }
