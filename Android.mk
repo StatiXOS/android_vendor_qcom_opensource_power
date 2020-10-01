@@ -76,6 +76,11 @@ ifeq ($(call is-board-platform-in-list,msmnile), true)
 LOCAL_SRC_FILES += power-msmnile.c
 endif
 
+ifneq ($(TARGET_POWERHAL_MODE_EXT),)
+    LOCAL_CFLAGS += -DMODE_EXT
+    LOCAL_SRC_FILES += ../../../../$(TARGET_POWERHAL_MODE_EXT)
+endif
+
 ifneq ($(TARGET_TAP_TO_WAKE_NODE),)
     LOCAL_CFLAGS += -DTAP_TO_WAKE_NODE=\"$(TARGET_TAP_TO_WAKE_NODE)\"
 endif
