@@ -69,8 +69,6 @@ LOCAL_SRC_FILES += power-710.c
 endif
 
 ifeq ($(call is-board-platform-in-list,trinket), true)
-LOCAL_SHARED_LIBRARIES := liblog libcutils libdl libxml2
-LOCAL_SRC_FILES := power.c metadata-parser.c utils.c list.c hint-data.c powerhintparser.c
 LOCAL_SRC_FILES += power-6125.c
 endif
 
