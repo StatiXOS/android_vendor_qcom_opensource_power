@@ -52,6 +52,11 @@ namespace hardware {
 namespace power {
 namespace impl {
 
+#ifdef BOOST_EXT
+extern bool isDeviceSpecificBoostSupported(Boost type, bool* _aidl_return);
+extern bool setDeviceSpecificBoost(Boost type, int32_t durationMs);
+#endif
+
 #ifdef MODE_EXT
 extern bool isDeviceSpecificModeSupported(Mode type, bool* _aidl_return);
 extern bool setDeviceSpecificMode(Mode type, bool enabled);
@@ -134,6 +139,11 @@ ndk::ScopedAStatus Power::isModeSupported(Mode type, bool* _aidl_return) {
 ndk::ScopedAStatus Power::setBoost(Boost type, int32_t durationMs) {
     LOG(VERBOSE) << "Power setBoost: " << static_cast<int32_t>(type)
                  << ", duration: " << durationMs;
+#ifdef BOOST_EXT
+    if (setDeviceSpecificBoost(type, durationMs)) {
+        return ndk::ScopedAStatus::ok();
+    }
+#endif
     switch (type) {
         case Boost::INTERACTION:
             power_hint(POWER_HINT_INTERACTION, &durationMs);
@@ -147,6 +157,12 @@ ndk::ScopedAStatus Power::setBoost(Boost type, int32_t durationMs) {
 
 ndk::ScopedAStatus Power::isBoostSupported(Boost type, bool* _aidl_return) {
     LOG(INFO) << "Power isBoostSupported: " << static_cast<int32_t>(type);
+#ifdef BOOST_EXT
+    if (isDeviceSpecificBoostSupported(type, _aidl_return)) {
+        return ndk::ScopedAStatus::ok();
+    }
+#endif
+
     switch (type) {
         case Boost::INTERACTION:
             *_aidl_return = true;
