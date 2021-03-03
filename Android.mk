@@ -72,10 +72,6 @@ ifeq ($(call is-board-platform-in-list,qcs605), true)
 LOCAL_SRC_FILES += power-710.c
 endif
 
-ifeq ($(call is-board-platform-in-list,trinket), true)
-LOCAL_SRC_FILES += power-6125.c
-endif
-
 ifeq ($(call is-board-platform-in-list,msmnile), true)
 LOCAL_SRC_FILES += power-msmnile.c
 endif
@@ -103,5 +99,3 @@ LOCAL_VENDOR_MODULE := true
 LOCAL_VINTF_FRAGMENTS := power.xml
 include $(BUILD_EXECUTABLE)
 
-
-endif
